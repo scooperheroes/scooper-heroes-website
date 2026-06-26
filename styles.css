@@ -602,17 +602,30 @@ h3 {
 }
 
 .team-card-photo {
+  --team-card-image: url("assets/team-dominic-card.png");
+  --team-card-position: right -12px center;
+  --team-card-size: auto 118%;
   min-height: 280px;
   color: #fff;
   background:
     linear-gradient(90deg, rgba(5, 10, 26, 0.92) 0%, rgba(5, 10, 26, 0.78) 48%, rgba(5, 10, 26, 0.46) 100%),
     radial-gradient(circle at 86% 30%, rgba(53, 220, 202, 0.26), transparent 38%),
-    url("assets/team-dominic-card.png"),
+    var(--team-card-image),
     linear-gradient(135deg, #07111f 0%, #0d2030 100%);
-  background-position: center, center, right -12px center, center;
+  background-position: center, center, var(--team-card-position), center;
   background-repeat: no-repeat;
-  background-size: auto, auto, auto 118%, auto;
+  background-size: auto, auto, var(--team-card-size), auto;
   overflow: hidden;
+}
+
+.team-card-sai {
+  --team-card-image: url("assets/team-sai-card.png");
+  --team-card-position: right -34px center;
+}
+
+.team-card-lindsay {
+  --team-card-image: url("assets/team-lindsay-card.png");
+  --team-card-position: right -36px center;
 }
 
 .team-card-photo h3,
@@ -1088,7 +1101,7 @@ h3 {
 }
 
 .team-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .team-card span {
@@ -1918,6 +1931,7 @@ summary:focus-visible {
   .contact-section,
   .pricing-note,
   .faq-preview,
+  .team-grid,
   .blog-grid {
     grid-template-columns: 1fr;
   }
@@ -2092,8 +2106,8 @@ summary:focus-visible {
   }
 
   .team-card-photo {
-    background-position: center, center, right -48px center, center;
-    background-size: auto, auto, auto 108%, auto;
+    --team-card-position: right -48px center;
+    --team-card-size: auto 108%;
   }
 
   .team-card-photo h3,
