@@ -18,6 +18,8 @@ if (quoteRoot) {
   const timeOptions = quoteRoot.querySelector("[data-time-options]");
   const review = quoteRoot.querySelector("[data-review]");
   const emailFallback = quoteRoot.querySelector("[data-email-fallback]");
+  const startedAtInput = quoteRoot.querySelector("[data-form-started-at]");
+  const nonceInput = quoteRoot.querySelector("[data-form-nonce]");
 
   const backendUrl = window.SCOOPER_HEROES_FORM_ENDPOINT || "";
   const serviceZips = new Set([
@@ -111,10 +113,26 @@ if (quoteRoot) {
     "zip_checked",
     "form_submitted"
   ]);
+  const formStartedAt = Date.now();
+  const formNonce = createNonce();
   let currentStep = 0;
+  let lastZipTracked = "";
+
+  if (startedAtInput) startedAtInput.value = String(formStartedAt);
+  if (nonceInput) nonceInput.value = formNonce;
 
   function formData() {
     return Object.fromEntries(new FormData(form).entries());
+  }
+
+  function createNonce() {
+    const bytes = new Uint8Array(16);
+    if (window.crypto?.getRandomValues) {
+      window.crypto.getRandomValues(bytes);
+      return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
   function escapeHtml(value) {
@@ -188,7 +206,8 @@ if (quoteRoot) {
     const supported = zipIsSupported();
     zipGood.hidden = !(isComplete && supported);
     zipBad.hidden = !(isComplete && !supported);
-    if (isComplete) {
+    if (isComplete && zip !== lastZipTracked) {
+      lastZipTracked = zip;
       track("zip_checked", { zip, supported });
     }
   }
@@ -239,7 +258,7 @@ if (quoteRoot) {
       date.setDate(date.getDate() + offset);
       const day = date.getDay();
       if (day !== 0 && day !== 6) {
-        const iso = date.toISOString().slice(0, 10);
+        const iso = localIsoDate(date);
         const button = document.createElement("button");
         button.type = "button";
         button.className = "slot-button";
@@ -259,6 +278,13 @@ if (quoteRoot) {
       button.textContent = time;
       timeOptions.appendChild(button);
     });
+  }
+
+  function localIsoDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   function selectSlot(target, selector, fieldName, value) {

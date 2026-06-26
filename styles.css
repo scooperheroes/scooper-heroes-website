@@ -1246,6 +1246,14 @@ details p {
   padding: clamp(24px, 4vw, 38px);
 }
 
+.form-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .quote-step {
   display: none;
   animation: quoteStepIn 180ms ease both;

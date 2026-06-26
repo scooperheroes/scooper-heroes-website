@@ -8,12 +8,25 @@ not published.
 ## What It Handles
 
 - Receives the custom website form submission
+- Rejects spammy or malformed submissions before touching Calendar or Sheets
+- Enforces the service ZIP whitelist on the server, not only in the browser
 - Saves the lead into a Google Sheet
 - Creates a Google Calendar event
 - Sends Scooper Heroes an email notification
 - Sends the customer an email confirmation
 - Tracks form views, step views, ZIP checks, and submissions in an `Analytics` sheet
 - Adds future SMS opt-ins to an `SMS Queue` sheet for a later Twilio/text-message integration
+
+## Security Controls
+
+- Payload size limit to block oversized requests
+- Hidden honeypot field and minimum realistic submission time
+- Required field validation and allowed-value checks
+- Server-side service ZIP validation
+- Appointment time and booking-window validation
+- Global and per-contact rate limits
+- Safer spreadsheet writes to prevent formula injection
+- `Security Events` sheet for rejected request monitoring
 
 ## Setup
 
