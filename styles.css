@@ -601,6 +601,36 @@ h3 {
   font-weight: 950;
 }
 
+.team-card-photo {
+  min-height: 280px;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(5, 10, 26, 0.92) 0%, rgba(5, 10, 26, 0.78) 48%, rgba(5, 10, 26, 0.46) 100%),
+    radial-gradient(circle at 86% 30%, rgba(53, 220, 202, 0.26), transparent 38%),
+    url("assets/team-dominic-card.png"),
+    linear-gradient(135deg, #07111f 0%, #0d2030 100%);
+  background-position: center, center, right -12px center, center;
+  background-repeat: no-repeat;
+  background-size: auto, auto, auto 118%, auto;
+  overflow: hidden;
+}
+
+.team-card-photo h3,
+.team-card-photo p {
+  max-width: 58%;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
+}
+
+.team-card-photo p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.team-card-photo span {
+  background: rgba(53, 220, 202, 0.94);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
 .how-section {
   background: var(--paper);
 }
@@ -2059,6 +2089,16 @@ summary:focus-visible {
   .field-grid.three,
   .appointment-picker {
     grid-template-columns: 1fr;
+  }
+
+  .team-card-photo {
+    background-position: center, center, right -48px center, center;
+    background-size: auto, auto, auto 108%, auto;
+  }
+
+  .team-card-photo h3,
+  .team-card-photo p {
+    max-width: 68%;
   }
 
   .date-options,
