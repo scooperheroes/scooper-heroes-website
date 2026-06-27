@@ -2,7 +2,7 @@ const CONFIG = {
   spreadsheetId: "PASTE_GOOGLE_SHEET_ID_HERE",
   calendarId: "primary",
   ownerEmail: "scooperheroes.service@gmail.com",
-  appointmentDurationMinutes: 45,
+  appointmentDurationMinutes: 120,
   calendarEmailReminderMinutes: 24 * 60,
   calendarPopupReminderMinutes: 2 * 60,
   businessName: "Scooper Heroes",
@@ -97,7 +97,8 @@ const ALLOWED_DOG_COUNTS = new Set(["1", "2", "3", "4", "5", "6+"]);
 const ALLOWED_SERVICE_TYPES = new Set(["Recurring service", "One-time cleanup"]);
 const ALLOWED_SCHEDULES = new Set(["Weekly", "Biweekly", "Monthly", "One-time only"]);
 const ALLOWED_STATES = new Set(["IN", "IL"]);
-const ALLOWED_APPOINTMENT_TIMES = new Set(["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM"]);
+const WEEKDAY_APPOINTMENT_TIMES = new Set(["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM"]);
+const SATURDAY_APPOINTMENT_TIMES = new Set(["9:00 AM", "11:00 AM", "1:00 PM", "2:00 PM"]);
 
 function doGet() {
   return jsonResponse({
@@ -198,7 +199,8 @@ function normalizeSubmission(payload) {
     preferredSchedule: cleanText(payload.preferredSchedule, 40),
     specialInstructions: cleanMultiline(payload.specialInstructions, 600),
     appointmentDate: cleanText(payload.appointmentDate, 10),
-    appointmentTime: cleanText(payload.appointmentTime, 10),
+    appointmentTime: cleanText(payload.appointmentTime, 12),
+    homeForAppointment: payload.homeForAppointment === "yes",
     appointmentStart,
     appointmentEnd,
     smsOptIn: payload.smsOptIn === "yes",
@@ -241,7 +243,8 @@ function validateRequiredFields(lead) {
     "lastCleaning",
     "preferredSchedule",
     "appointmentDate",
-    "appointmentTime"
+    "appointmentTime",
+    "homeForAppointment"
   ];
 
   required.forEach((field) => {
@@ -272,8 +275,17 @@ function validateAllowedValues(lead) {
     throw new PublicError("Invalid state.");
   }
 
-  if (!ALLOWED_APPOINTMENT_TIMES.has(lead.appointmentTime)) {
+  const appointmentDay = lead.appointmentStart.getDay();
+  const validAppointmentTime = appointmentDay === 6
+    ? SATURDAY_APPOINTMENT_TIMES.has(lead.appointmentTime)
+    : WEEKDAY_APPOINTMENT_TIMES.has(lead.appointmentTime);
+
+  if (!validAppointmentTime) {
     throw new PublicError("Invalid appointment time.");
+  }
+
+  if (!lead.homeForAppointment) {
+    throw new PublicError("Customer must be home for the appointment.");
   }
 
   if (!isValidEmail(lead.email)) {
@@ -313,7 +325,8 @@ function appendLead(lead, calendarEvent) {
     safeCell(lead.appointmentTime),
     safeCell(calendarEvent.getId()),
     safeCell(lead.smsReminderStatus),
-    safeCell(lead.source)
+    safeCell(lead.source),
+    lead.homeForAppointment ? "Yes" : "No"
   ]);
 }
 
@@ -362,6 +375,7 @@ function sendOwnerEmail(lead, calendarEvent) {
     `Service type: ${lead.serviceType}`,
     `Preferred schedule: ${lead.preferredSchedule}`,
     `Appointment: ${lead.appointmentDate} at ${lead.appointmentTime}`,
+    `Customer will be home: ${lead.homeForAppointment ? "Yes" : "No"}`,
     `Calendar event: ${calendarEvent.getId()}`,
     "",
     `Access notes: ${lead.accessNotes}`,
@@ -433,7 +447,8 @@ function getLeadSheet() {
       "Appointment Time",
       "Calendar Event ID",
       "SMS Reminder Status",
-      "Source"
+      "Source",
+      "Customer Will Be Home"
     ]);
   }
 
@@ -503,7 +518,7 @@ function getAnalyticsSheet() {
 
 function parseAppointment(dateValue, timeValue) {
   const date = cleanText(dateValue, 10);
-  const time = cleanText(timeValue, 10);
+  const time = cleanText(timeValue, 12);
   const dateParts = date.split("-").map(Number);
   const match = time.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
 
@@ -530,8 +545,8 @@ function parseAppointment(dateValue, timeValue) {
     throw new PublicError("Invalid appointment date.");
   }
 
-  if (appointment.getDay() === 0 || appointment.getDay() === 6) {
-    throw new PublicError("Appointment must be on a weekday.");
+  if (appointment.getDay() === 0) {
+    throw new PublicError("Appointment must be Monday through Saturday.");
   }
 
   if (appointment.getTime() <= now.getTime() || appointment.getTime() > maxDate.getTime()) {

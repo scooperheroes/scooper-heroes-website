@@ -103,10 +103,11 @@ if (quoteRoot) {
     ["zip", "dogCount", "serviceType"],
     ["firstName", "lastName", "phone", "email"],
     ["street", "city", "state", "lastCleaning", "preferredSchedule"],
-    ["appointmentDate", "appointmentTime"],
+    ["appointmentDate", "appointmentTime", "homeForAppointment"],
     ["consent"]
   ];
-  const appointmentTimes = ["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM"];
+  const weekdayAppointmentTimes = ["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM"];
+  const saturdayAppointmentTimes = ["9:00 AM", "11:00 AM", "1:00 PM", "2:00 PM"];
   const backendAnalyticsEvents = new Set([
     "form_viewed",
     "step_viewed",
@@ -234,6 +235,12 @@ if (quoteRoot) {
       return false;
     }
 
+    if (index === 3 && !data.homeForAppointment) {
+      setMessage("Confirm that you will be home for the appointment before moving forward.", "error");
+      form.elements.homeForAppointment?.focus();
+      return false;
+    }
+
     if (missing.length) {
       setMessage("Fill out the required fields before moving forward.", "error");
       const first = form.elements[missing[0]];
@@ -253,16 +260,17 @@ if (quoteRoot) {
     });
     let added = 0;
     let offset = 1;
-    while (added < 5) {
+    while (added < 7) {
       const date = new Date();
       date.setDate(date.getDate() + offset);
       const day = date.getDay();
-      if (day !== 0 && day !== 6) {
+      if (day !== 0) {
         const iso = localIsoDate(date);
         const button = document.createElement("button");
         button.type = "button";
         button.className = "slot-button";
         button.dataset.date = iso;
+        button.dataset.day = String(day);
         button.textContent = formatter.format(date);
         dateOptions.appendChild(button);
         added += 1;
@@ -270,7 +278,15 @@ if (quoteRoot) {
       offset += 1;
     }
 
-    appointmentTimes.forEach((time) => {
+    renderAppointmentTimes();
+  }
+
+  function renderAppointmentTimes(day = null) {
+    if (!timeOptions) return;
+    timeOptions.innerHTML = "";
+    const times = day === 6 ? saturdayAppointmentTimes : weekdayAppointmentTimes;
+
+    times.forEach((time) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "slot-button";
@@ -374,6 +390,8 @@ if (quoteRoot) {
     const button = event.target.closest("[data-date]");
     if (!button) return;
     selectSlot(button, "[data-date]", "appointmentDate", button.dataset.date);
+    form.elements.appointmentTime.value = "";
+    renderAppointmentTimes(Number(button.dataset.day));
   });
 
   timeOptions?.addEventListener("click", (event) => {
