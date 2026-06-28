@@ -103,7 +103,7 @@ if (quoteRoot) {
     ["zip", "dogCount", "serviceType"],
     ["firstName", "lastName", "phone", "email"],
     ["street", "city", "state", "lastCleaning", "preferredSchedule"],
-    ["appointmentDate", "appointmentTime"],
+    ["appointmentDate", "appointmentTime", "homeForAppointment"],
     ["consent"]
   ];
   const weekdayAppointmentTimes = ["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM"];
@@ -238,7 +238,10 @@ if (quoteRoot) {
     }
 
     if (missing.length) {
-      setMessage("Fill out the required fields before moving forward.", "error");
+      const errorText = missing.includes("homeForAppointment")
+        ? "Confirm that you will be home for the appointment before moving forward."
+        : "Fill out the required fields before moving forward.";
+      setMessage(errorText, "error");
       const first = form.elements[missing[0]];
       if (first?.focus) first.focus();
       return false;
@@ -466,6 +469,7 @@ if (quoteRoot) {
       ["Address", `${data.street || ""}, ${data.city || ""}, ${data.state || ""}`],
       ["Schedule", data.preferredSchedule],
       ["Appointment", `${data.appointmentDate || ""} at ${data.appointmentTime || ""}`],
+      ["Home for appointment", data.homeForAppointment ? "Yes" : ""],
       ["Text reminders", data.smsOptIn ? "Text reminders requested" : "Email reminders only"]
     ];
 
