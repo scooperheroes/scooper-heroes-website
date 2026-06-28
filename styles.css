@@ -1468,6 +1468,33 @@ details p {
   box-shadow: 0 12px 24px rgba(15, 141, 130, 0.14);
 }
 
+.slot-button:disabled {
+  border-color: #d5dde7;
+  background: #edf2f3;
+  color: #7b8495;
+  cursor: not-allowed;
+  opacity: 0.72;
+  box-shadow: none;
+}
+
+.slot-button:disabled:hover,
+.slot-button:disabled:focus-visible {
+  border-color: #d5dde7;
+  background: #edf2f3;
+  box-shadow: none;
+}
+
+.slot-status {
+  grid-column: 1 / -1;
+  margin: 12px 0 0;
+  color: var(--ink-soft);
+  font-weight: 850;
+}
+
+.slot-status.error {
+  color: var(--red-deep);
+}
+
 .review-card {
   display: grid;
   gap: 1px;

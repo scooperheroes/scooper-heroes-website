@@ -12,7 +12,11 @@ const CONFIG = {
   maxFutureAppointmentDays: 45,
   maxAnalyticsPerFiveMinutes: 240,
   maxLeadsPerHour: 30,
-  maxLeadsPerContactPerDay: 3
+  maxLeadsPerContactPerDay: 3,
+  siteUrl: "https://scooper-heroes.com/",
+  siteOrigin: "https://scooper-heroes.com",
+  logoUrl: "https://scooper-heroes.com/assets/logo-scooper-heroes.png",
+  checkAllOwnedCalendarsForAvailability: true
 };
 
 const SERVICE_ZIPS = new Set([
@@ -100,7 +104,17 @@ const ALLOWED_STATES = new Set(["IN", "IL"]);
 const WEEKDAY_APPOINTMENT_TIMES = new Set(["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM"]);
 const SATURDAY_APPOINTMENT_TIMES = new Set(["9:00 AM", "11:00 AM", "1:00 PM", "2:00 PM"]);
 
-function doGet() {
+function doGet(event) {
+  const params = event && event.parameter ? event.parameter : {};
+
+  if (params.type === "availability") {
+    const payload = getAvailabilityPayload();
+    if (params.callback) {
+      return javascriptResponse(payload, params.callback);
+    }
+    return jsonResponse(payload);
+  }
+
   return jsonResponse({
     ok: true,
     service: "Scooper Heroes Quote Form Backend"
@@ -108,6 +122,8 @@ function doGet() {
 }
 
 function doPost(event) {
+  const params = event && event.parameter ? event.parameter : {};
+  const isFrameSubmit = params.type === "submit-frame";
   const lock = LockService.getScriptLock();
 
   try {
@@ -131,18 +147,25 @@ function doPost(event) {
     sendCustomerEmail(normalized);
     queueSmsReminder(normalized, calendarEvent);
 
-    return jsonResponse({
+    const response = {
       ok: true,
       eventId: calendarEvent.getId(),
       smsReminderStatus: normalized.smsReminderStatus
-    });
+    };
+
+    return isFrameSubmit
+      ? frameResponse(response, params.callbackToken)
+      : jsonResponse(response);
   } catch (error) {
     const message = error instanceof PublicError
       ? error.message
       : "Unable to process this request right now.";
 
     recordSecurityEvent(message, event);
-    return jsonResponse({ ok: false, error: message });
+    const response = { ok: false, error: message };
+    return isFrameSubmit
+      ? frameResponse(response, params.callbackToken)
+      : jsonResponse(response);
   } finally {
     try {
       lock.releaseLock();
@@ -153,6 +176,11 @@ function doPost(event) {
 }
 
 function parsePayload(event) {
+  const parameterPayload = event && event.parameter && event.parameter.payload;
+  if (parameterPayload) {
+    return parseJsonPayload(parameterPayload);
+  }
+
   const contents = String(event && event.postData && event.postData.contents || "");
 
   if (!contents) {
@@ -163,6 +191,15 @@ function parsePayload(event) {
     throw new PublicError("Form data is too large.");
   }
 
+  const formPayload = contents.match(/(?:^|[\r\n&])payload=([\s\S]*)/);
+  if (formPayload) {
+    return parseJsonPayload(decodeURIComponent(formPayload[1].replace(/\+/g, " ")));
+  }
+
+  return parseJsonPayload(contents);
+}
+
+function parseJsonPayload(contents) {
   try {
     return JSON.parse(contents);
   } catch (error) {
@@ -200,7 +237,6 @@ function normalizeSubmission(payload) {
     specialInstructions: cleanMultiline(payload.specialInstructions, 600),
     appointmentDate: cleanText(payload.appointmentDate, 10),
     appointmentTime: cleanText(payload.appointmentTime, 12),
-    homeForAppointment: payload.homeForAppointment === "yes",
     appointmentStart,
     appointmentEnd,
     smsOptIn: payload.smsOptIn === "yes",
@@ -243,8 +279,7 @@ function validateRequiredFields(lead) {
     "lastCleaning",
     "preferredSchedule",
     "appointmentDate",
-    "appointmentTime",
-    "homeForAppointment"
+    "appointmentTime"
   ];
 
   required.forEach((field) => {
@@ -284,8 +319,8 @@ function validateAllowedValues(lead) {
     throw new PublicError("Invalid appointment time.");
   }
 
-  if (!lead.homeForAppointment) {
-    throw new PublicError("Customer must be home for the appointment.");
+  if (!isAppointmentSlotAvailable(lead.appointmentStart, lead.appointmentEnd)) {
+    throw new PublicError("That appointment time is no longer available. Please choose another time.");
   }
 
   if (!isValidEmail(lead.email)) {
@@ -325,8 +360,7 @@ function appendLead(lead, calendarEvent) {
     safeCell(lead.appointmentTime),
     safeCell(calendarEvent.getId()),
     safeCell(lead.smsReminderStatus),
-    safeCell(lead.source),
-    lead.homeForAppointment ? "Yes" : "No"
+    safeCell(lead.source)
   ]);
 }
 
@@ -375,7 +409,6 @@ function sendOwnerEmail(lead, calendarEvent) {
     `Service type: ${lead.serviceType}`,
     `Preferred schedule: ${lead.preferredSchedule}`,
     `Appointment: ${lead.appointmentDate} at ${lead.appointmentTime}`,
-    `Customer will be home: ${lead.homeForAppointment ? "Yes" : "No"}`,
     `Calendar event: ${calendarEvent.getId()}`,
     "",
     `Access notes: ${lead.accessNotes}`,
@@ -389,22 +422,144 @@ function sendOwnerEmail(lead, calendarEvent) {
 
 function sendCustomerEmail(lead) {
   const subject = "Your Scooper Heroes yard inspection request";
+  const appointmentWindow = formatAppointmentWindow(lead);
+  const serviceAddress = `${lead.street}, ${lead.city}, ${lead.state} ${lead.zip}`;
   const body = [
     `Hi ${lead.firstName},`,
     "",
-    "Thanks for requesting a free Scooper Heroes yard inspection.",
+    "Thanks for requesting a free Scooper Heroes yard inspection. We received your request and will review the details before your visit.",
     "",
-    `Requested appointment: ${lead.appointmentDate} at ${lead.appointmentTime}`,
-    `Service address: ${lead.street}, ${lead.city}, ${lead.state} ${lead.zip}`,
+    `Requested appointment: ${appointmentWindow}`,
+    `Service address: ${serviceAddress}`,
+    `Dogs: ${lead.dogCount}`,
+    `Service requested: ${lead.serviceType}`,
     "",
-    "We will confirm your quote details and reach out if anything needs to be adjusted.",
+    "If anything needs to be adjusted, our team will reach out before your inspection.",
     "",
-    "Scooper Heroes",
-    "(708) 739-4317",
-    "scooperheroes.service@gmail.com"
+    "Saving Your Yard One Scoop At A Time!",
+    "Scooper Heroes Support Team",
+    CONFIG.ownerEmail,
+    "708-739-4317",
+    CONFIG.siteUrl,
+    "",
+    "________________________________",
+    "",
+    "The information contained in this e-mail and any accompanying documents is intended for the sole use of the recipient to whom it is addressed, and may contain information that is privileged, confidential, and prohibited from disclosure under applicable law. If you are not the intended recipient, or authorized to receive this on behalf of the recipient, you are hereby notified that any review, use, disclosure, copying, or distribution is prohibited. If you are not the intended recipient(s), please contact the sender by e-mail and destroy all copies of the original message. Thank you."
   ].join("\n");
+  const htmlBody = buildCustomerEmailHtml(lead, appointmentWindow, serviceAddress);
 
-  MailApp.sendEmail(lead.email, subject, body);
+  MailApp.sendEmail(lead.email, subject, body, {
+    htmlBody,
+    name: "Scooper Heroes",
+    replyTo: CONFIG.ownerEmail
+  });
+}
+
+function buildCustomerEmailHtml(lead, appointmentWindow, serviceAddress) {
+  const safeFirstName = escapeHtml(lead.firstName);
+  const safeAppointmentWindow = escapeHtml(appointmentWindow);
+  const safeServiceAddress = escapeHtml(serviceAddress);
+  const safeDogCount = escapeHtml(lead.dogCount);
+  const safeServiceType = escapeHtml(lead.serviceType);
+  const safeSiteUrl = escapeHtml(CONFIG.siteUrl);
+  const safeLogoUrl = escapeHtml(CONFIG.logoUrl);
+  const safeOwnerEmail = escapeHtml(CONFIG.ownerEmail);
+
+  return `
+<!doctype html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f8f8; font-family:Arial, Helvetica, sans-serif; color:#111633;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f8f8; padding:28px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px; background:#ffffff; border-radius:18px; overflow:hidden; border:1px solid #dbe8e6;">
+            <tr>
+              <td style="background:#111633; padding:28px 28px 24px; text-align:center;">
+                <img src="${safeLogoUrl}" width="142" alt="Scooper Heroes" style="display:block; margin:0 auto 18px; width:142px; max-width:46%; height:auto;">
+                <p style="margin:0 0 8px; color:#34dec9; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase;">Free Yard Inspection</p>
+                <h1 style="margin:0; color:#ffffff; font-size:30px; line-height:1.15; font-weight:900;">Your request is confirmed.</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:30px 28px 10px;">
+                <p style="margin:0 0 18px; font-size:18px; line-height:1.55;">Hi ${safeFirstName},</p>
+                <p style="margin:0 0 22px; font-size:16px; line-height:1.65; color:#45516a;">
+                  Thanks for requesting a free Scooper Heroes yard inspection. We received your request and will review the details before your visit.
+                </p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate; border-spacing:0; background:#eefdf9; border:1px solid #a9eee5; border-radius:14px;">
+                  <tr>
+                    <td style="padding:18px 20px;">
+                      <p style="margin:0 0 6px; color:#cc1f1f; font-size:12px; font-weight:900; letter-spacing:1.6px; text-transform:uppercase;">Appointment Window</p>
+                      <p style="margin:0; color:#111633; font-size:22px; line-height:1.25; font-weight:900;">${safeAppointmentWindow}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:12px 28px 8px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:16px 0; border-bottom:1px solid #e4eceb;">
+                      <p style="margin:0 0 4px; color:#6b7488; font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;">Service Address</p>
+                      <p style="margin:0; color:#111633; font-size:16px; line-height:1.5; font-weight:700;">${safeServiceAddress}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 0; border-bottom:1px solid #e4eceb;">
+                      <p style="margin:0 0 4px; color:#6b7488; font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;">Dogs</p>
+                      <p style="margin:0; color:#111633; font-size:16px; line-height:1.5; font-weight:700;">${safeDogCount}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 0;">
+                      <p style="margin:0 0 4px; color:#6b7488; font-size:12px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;">Service Requested</p>
+                      <p style="margin:0; color:#111633; font-size:16px; line-height:1.5; font-weight:700;">${safeServiceType}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 26px;">
+                <div style="background:#fff7f2; border-left:5px solid #ff3c38; border-radius:10px; padding:16px 18px;">
+                  <p style="margin:0; color:#45516a; font-size:15px; line-height:1.6;">
+                    If anything needs to be adjusted, our team will reach out before your inspection.
+                  </p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#111633; padding:24px 28px; color:#ffffff;">
+                <p style="margin:0 0 8px; color:#34dec9; font-size:15px; font-weight:900;">Saving Your Yard One Scoop At A Time!</p>
+                <p style="margin:0 0 4px; font-size:15px; line-height:1.55;">Scooper Heroes Support Team</p>
+                <p style="margin:0; font-size:15px; line-height:1.55;">
+                  <a href="mailto:${safeOwnerEmail}" style="color:#ffffff; text-decoration:underline;">${safeOwnerEmail}</a><br>
+                  <a href="tel:17087394317" style="color:#ffffff; text-decoration:underline;">708-739-4317</a><br>
+                  <a href="${safeSiteUrl}" style="color:#ffffff; text-decoration:underline;">Scooper-Heroes.com</a>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 28px 24px; background:#f7faf9;">
+                <p style="margin:0; color:#687386; font-size:11px; line-height:1.55;">
+                  The information contained in this e-mail and any accompanying documents is intended for the sole use of the recipient to whom it is addressed, and may contain information that is privileged, confidential, and prohibited from disclosure under applicable law. If you are not the intended recipient, or authorized to receive this on behalf of the recipient, you are hereby notified that any review, use, disclosure, copying, or distribution is prohibited. If you are not the intended recipient(s), please contact the sender by e-mail and destroy all copies of the original message. Thank you.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function formatAppointmentWindow(lead) {
+  const date = Utilities.formatDate(lead.appointmentStart, CONFIG.timezone, "EEEE, MMMM d, yyyy");
+  const start = Utilities.formatDate(lead.appointmentStart, CONFIG.timezone, "h:mm a");
+  const end = Utilities.formatDate(lead.appointmentEnd, CONFIG.timezone, "h:mm a");
+  return `${date}, ${start} - ${end}`;
 }
 
 function queueSmsReminder(lead, calendarEvent) {
@@ -447,8 +602,7 @@ function getLeadSheet() {
       "Appointment Time",
       "Calendar Event ID",
       "SMS Reminder Status",
-      "Source",
-      "Customer Will Be Home"
+      "Source"
     ]);
   }
 
@@ -514,6 +668,125 @@ function getAnalyticsSheet() {
   }
 
   return sheet;
+}
+
+function getAvailabilityPayload() {
+  const dates = [];
+  const blackoutDates = getBlackoutDates();
+  let offset = 1;
+
+  while (dates.length < 7 && offset <= CONFIG.maxFutureAppointmentDays) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + offset);
+
+    if (date.getDay() !== 0) {
+      const iso = localIsoDate(date);
+      const isBlackout = blackoutDates.has(iso);
+      const availableTimes = getAppointmentTimesForDay(date.getDay()).map((time) => {
+        const start = parseAppointment(iso, time);
+        const end = new Date(start.getTime() + CONFIG.appointmentDurationMinutes * 60 * 1000);
+        return {
+          time,
+          available: !isBlackout && isAppointmentSlotAvailable(start, end, blackoutDates)
+        };
+      });
+
+      dates.push({
+        date: iso,
+        label: Utilities.formatDate(date, CONFIG.timezone, "EEE, MMM d"),
+        day: date.getDay(),
+        blackout: isBlackout,
+        times: availableTimes
+      });
+    }
+
+    offset += 1;
+  }
+
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    durationMinutes: CONFIG.appointmentDurationMinutes,
+    dates
+  };
+}
+
+function getAppointmentTimesForDay(day) {
+  return Array.from(day === 6 ? SATURDAY_APPOINTMENT_TIMES : WEEKDAY_APPOINTMENT_TIMES);
+}
+
+function isAppointmentSlotAvailable(start, end, blackoutDates) {
+  const blackouts = blackoutDates || getBlackoutDates();
+  if (blackouts.has(localIsoDate(start))) {
+    return false;
+  }
+
+  const calendars = getCalendarsForAvailability();
+
+  return calendars.every((calendar) => {
+    const events = calendar.getEvents(start, end);
+    return events.every((event) => {
+      const eventStart = event.getStartTime();
+      const eventEnd = event.getEndTime();
+      return eventEnd.getTime() <= start.getTime() || eventStart.getTime() >= end.getTime();
+    });
+  });
+}
+
+function getCalendarsForAvailability() {
+  const calendars = [];
+  const seen = new Set();
+
+  function addCalendar(calendar) {
+    if (!calendar) return;
+    const id = calendar.getId();
+    if (seen.has(id)) return;
+    seen.add(id);
+    calendars.push(calendar);
+  }
+
+  addCalendar(CalendarApp.getCalendarById(CONFIG.calendarId));
+
+  if (CONFIG.checkAllOwnedCalendarsForAvailability) {
+    CalendarApp.getAllOwnedCalendars().forEach(addCalendar);
+  }
+
+  return calendars;
+}
+
+function getBlackoutDates() {
+  const dates = new Set();
+
+  try {
+    const spreadsheet = SpreadsheetApp.openById(CONFIG.spreadsheetId);
+    const sheet = spreadsheet.getSheetByName("Blackout Dates");
+    if (!sheet || sheet.getLastRow() < 2) return dates;
+
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    values.forEach(([value]) => {
+      const iso = normalizeBlackoutDate(value);
+      if (iso) dates.add(iso);
+    });
+  } catch (error) {
+    // If the sheet is unavailable, Calendar conflicts still protect bookings.
+  }
+
+  return dates;
+}
+
+function normalizeBlackoutDate(value) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return localIsoDate(value);
+  }
+
+  const text = cleanText(value, 24);
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? text : "";
+}
+
+function localIsoDate(date) {
+  return Utilities.formatDate(date, CONFIG.timezone, "yyyy-MM-dd");
 }
 
 function parseAppointment(dateValue, timeValue) {
@@ -604,6 +877,14 @@ function safeCell(value) {
   return /^[=+\-@]/.test(text) ? `'${text}` : text;
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function limitDetail(detail) {
   const allowed = {};
   Object.keys(detail).slice(0, 12).forEach((key) => {
@@ -658,6 +939,41 @@ function jsonResponse(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function frameResponse(data, callbackToken) {
+  const message = {
+    source: "scooper-heroes-form",
+    token: cleanText(callbackToken, 120),
+    response: data
+  };
+  const safeMessage = JSON.stringify(message).replace(/</g, "\\u003c");
+  const safeOrigin = JSON.stringify(CONFIG.siteOrigin);
+
+  return HtmlService.createHtmlOutput(`
+<!doctype html>
+<html>
+  <body>
+    <script>
+      window.parent.postMessage(${safeMessage}, ${safeOrigin});
+    </script>
+  </body>
+</html>`);
+}
+
+function javascriptResponse(data, callback) {
+  const callbackName = cleanCallbackName(callback);
+  return ContentService
+    .createTextOutput(`${callbackName}(${JSON.stringify(data)});`)
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+function cleanCallbackName(value) {
+  const text = String(value || "");
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text)) {
+    return text;
+  }
+  return "scooperHeroesAvailability";
 }
 
 class PublicError extends Error {}
