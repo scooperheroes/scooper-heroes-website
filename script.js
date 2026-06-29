@@ -52,3 +52,67 @@ if (heroVideo?.dataset.videoSrc) {
       heroVideo.hidden = true;
     });
 }
+
+const reviewCarousel = document.querySelector("[data-review-carousel]");
+
+if (reviewCarousel) {
+  const slides = Array.from(reviewCarousel.querySelectorAll("[data-review-slide]"));
+  const dots = Array.from(reviewCarousel.querySelectorAll("[data-review-dot]"));
+  const previousButton = reviewCarousel.querySelector("[data-review-prev]");
+  const nextButton = reviewCarousel.querySelector("[data-review-next]");
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let activeIndex = 0;
+  let reviewTimer;
+
+  function showReview(nextIndex) {
+    if (!slides.length) return;
+    activeIndex = (nextIndex + slides.length) % slides.length;
+
+    slides.forEach((slide, index) => {
+      const isActive = index === activeIndex;
+      slide.hidden = !isActive;
+      slide.classList.toggle("active", isActive);
+    });
+
+    dots.forEach((dot, index) => {
+      const isActive = index === activeIndex;
+      dot.classList.toggle("active", isActive);
+      dot.setAttribute("aria-pressed", String(isActive));
+    });
+  }
+
+  function stopReviewTimer() {
+    if (reviewTimer) window.clearInterval(reviewTimer);
+  }
+
+  function startReviewTimer() {
+    stopReviewTimer();
+    if (prefersReducedMotion.matches || slides.length < 2) return;
+    reviewTimer = window.setInterval(() => showReview(activeIndex + 1), 6500);
+  }
+
+  previousButton?.addEventListener("click", () => {
+    showReview(activeIndex - 1);
+    startReviewTimer();
+  });
+
+  nextButton?.addEventListener("click", () => {
+    showReview(activeIndex + 1);
+    startReviewTimer();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      showReview(index);
+      startReviewTimer();
+    });
+  });
+
+  reviewCarousel.addEventListener("mouseenter", stopReviewTimer);
+  reviewCarousel.addEventListener("mouseleave", startReviewTimer);
+  reviewCarousel.addEventListener("focusin", stopReviewTimer);
+  reviewCarousel.addEventListener("focusout", startReviewTimer);
+
+  showReview(0);
+  startReviewTimer();
+}
