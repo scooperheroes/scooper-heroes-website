@@ -587,8 +587,7 @@ h3 {
   color: var(--ink-soft);
 }
 
-.card-icon,
-.team-card span {
+.card-icon {
   display: grid;
   width: 58px;
   height: 58px;
@@ -804,13 +803,14 @@ h3 {
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.42);
 }
 
-.team-card-photo p {
-  color: rgba(255, 255, 255, 0.82);
+.team-card-photo h3 {
+  margin: clamp(24px, 4vw, 46px) 0 10px;
+  font-size: clamp(1.55rem, 2.5vw, 2.1rem);
+  line-height: 1.05;
 }
 
-.team-card-photo span {
-  background: rgba(53, 220, 202, 0.94);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+.team-card-photo p {
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .how-section {
@@ -1452,12 +1452,6 @@ h3 {
 
 .team-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.team-card span {
-  background: var(--ink);
-  color: var(--teal);
-  font-size: 2rem;
 }
 
 .faq-list {
