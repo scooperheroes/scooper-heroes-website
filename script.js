@@ -116,3 +116,47 @@ if (reviewCarousel) {
   showReview(0);
   startReviewTimer();
 }
+
+const gatedMaps = Array.from(document.querySelectorAll("[data-map-gate]"));
+
+if (gatedMaps.length) {
+  let modifierKeyDown = false;
+  let touchMapTimer;
+
+  function setMapGateState(isActive) {
+    gatedMaps.forEach((map) => {
+      map.classList.toggle("map-is-active", isActive);
+    });
+  }
+
+  function activateTouchMap() {
+    window.clearTimeout(touchMapTimer);
+    setMapGateState(true);
+    touchMapTimer = window.setTimeout(() => {
+      if (!modifierKeyDown) setMapGateState(false);
+    }, 7000);
+  }
+
+  window.addEventListener("keydown", (event) => {
+    if (!event.metaKey && !event.ctrlKey) return;
+    modifierKeyDown = true;
+    setMapGateState(true);
+  });
+
+  window.addEventListener("keyup", (event) => {
+    modifierKeyDown = event.metaKey || event.ctrlKey;
+    setMapGateState(modifierKeyDown);
+  });
+
+  window.addEventListener("blur", () => {
+    modifierKeyDown = false;
+    setMapGateState(false);
+  });
+
+  gatedMaps.forEach((map) => {
+    map.querySelector("[data-map-gate-message]")?.addEventListener("click", activateTouchMap);
+    map.querySelector("[data-map-gate-message]")?.addEventListener("touchstart", activateTouchMap, {
+      passive: true,
+    });
+  });
+}

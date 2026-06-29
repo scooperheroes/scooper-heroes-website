@@ -12,7 +12,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png" />
     <link rel="apple-touch-icon" href="/assets/favicon-192x192.png" />
-    <link rel="stylesheet" href="styles.css?v=20260629seo" />
+    <link rel="stylesheet" href="styles.css?v=20260629mapgate" />
   </head>
   <body data-page="service-area">
     <header class="site-header compact-header" data-header>
@@ -76,7 +76,7 @@
 
       <section class="section map-section" id="route-map">
         <figure class="map-frame">
-          <div class="embedded-map">
+          <div class="embedded-map map-gate" data-map-gate>
             <iframe
               src="https://www.google.com/maps/d/u/1/embed?mid=1rSSXAfUXerVInxUcEMghKSbPZtcL1V4&amp;ehbc=2E312F"
               title="Scooper Heroes interactive weekday service route map"
@@ -84,12 +84,16 @@
               referrerpolicy="no-referrer-when-downgrade"
               allowfullscreen
             ></iframe>
+            <div class="map-gate-message" data-map-gate-message>
+              <strong>Hold Command on Mac or Ctrl on Windows to use the map.</strong>
+              <span>On phones and tablets, tap here to activate the map.</span>
+            </div>
           </div>
           <figcaption class="map-caption">
             <span>
-              Use the interactive map to zoom into your neighborhood. Route colors
-              show weekday service zones, and every address is confirmed by quote
-              before scheduling.
+              Hold Command on Mac or Ctrl on Windows while scrolling to zoom the
+              interactive map. Route colors show weekday service zones, and every
+              address is confirmed by quote before scheduling.
             </span>
             <ul class="map-legend" aria-label="Route color key">
               <li><span class="legend-dot monday-dot"></span>Monday</li>
@@ -232,6 +236,6 @@
       </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260629mapgate"></script>
   </body>
 </html>
