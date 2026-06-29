@@ -342,6 +342,15 @@ button {
   color: var(--teal);
 }
 
+.hero .eyebrow {
+  max-width: min(100%, 42rem);
+  font-size: clamp(0.95rem, 1.45vw, 1.12rem);
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
 h1,
 h2,
 h3,
