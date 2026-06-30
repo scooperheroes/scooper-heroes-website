@@ -336,7 +336,7 @@ button {
   width: min(100%, 520px);
   margin-left: auto;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   overflow: hidden;
   background:
     radial-gradient(circle at 100% 0%, rgba(255, 61, 55, 0.18), transparent 42%),
@@ -456,6 +456,7 @@ button {
 .hero-zip-fallback {
   margin: 0;
   padding: 14px 18px;
+  border-radius: 0 0 15px 15px;
   background: rgba(255, 255, 255, 0.96);
   color: var(--ink-soft);
   font-size: 0.88rem;
