@@ -59,7 +59,7 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260630zipcheck" />
+    <link rel="stylesheet" href="styles.css?v=20260630homezipframe" />
   </head>
   <body data-page="home">
     <header class="site-header" data-header>
@@ -124,33 +124,44 @@
           </div>
         </div>
 
-        <form class="hero-zip-card" data-hero-zip-form aria-label="Check service area ZIP code">
-          <p class="eyebrow">Start here</p>
-          <h2>Are you in our service area?</h2>
-          <p>
-            Enter your ZIP code first. If you are in our routes, we will send you
-            straight to the free yard inspection form.
+        <div class="hero-zip-frame">
+          <p class="hero-zip-title">Schedule a Free Yard Inspection</p>
+          <form class="hero-zip-card" data-hero-zip-form aria-label="Check service area ZIP code">
+            <div class="hero-zip-card-head">
+              <p class="eyebrow">Start here</p>
+              <h2>Are you in our service area?</h2>
+              <p>
+                Enter your ZIP code first. If you are in our routes, we will send
+                you straight to the free yard inspection form.
+              </p>
+            </div>
+            <div class="hero-zip-card-body">
+              <label for="hero-service-zip">Service Area ZIP Code</label>
+              <div class="hero-zip-row">
+                <input
+                  id="hero-service-zip"
+                  name="serviceZip"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="postal-code"
+                  maxlength="5"
+                  pattern="[0-9]{5}"
+                  placeholder="46322"
+                  required
+                />
+                <button class="button button-primary" type="submit">Check ZIP</button>
+              </div>
+              <p class="hero-zip-message" data-hero-zip-message role="status" aria-live="polite"></p>
+              <a class="button button-primary hero-quote-link" data-hero-quote-link href="https://form.jotform.com/261075534581054" hidden>
+                Get Free Quote
+              </a>
+            </div>
+          </form>
+          <p class="hero-zip-fallback">
+            Having trouble loading the form?
+            <a href="https://form.jotform.com/261075534581054">Open the secure form directly.</a>
           </p>
-          <label for="hero-service-zip">Service Area ZIP Code</label>
-          <div class="hero-zip-row">
-            <input
-              id="hero-service-zip"
-              name="serviceZip"
-              type="text"
-              inputmode="numeric"
-              autocomplete="postal-code"
-              maxlength="5"
-              pattern="[0-9]{5}"
-              placeholder="46322"
-              required
-            />
-            <button class="button button-primary" type="submit">Check ZIP</button>
-          </div>
-          <p class="hero-zip-message" data-hero-zip-message role="status" aria-live="polite"></p>
-          <a class="button button-primary hero-quote-link" data-hero-quote-link href="https://form.jotform.com/261075534581054" hidden>
-            Get Free Quote
-          </a>
-        </form>
+        </div>
       </section>
 
       <section class="section promise-section" aria-labelledby="promise-title">
