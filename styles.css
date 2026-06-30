@@ -768,32 +768,44 @@ h3 {
 }
 
 .review-section {
+  position: relative;
+  z-index: 4;
+  margin-top: clamp(-150px, -8vw, -88px);
+  padding-top: clamp(54px, 6vw, 84px);
+  padding-bottom: clamp(70px, 8vw, 108px);
   background:
-    radial-gradient(circle at 92% 8%, rgba(55, 230, 203, 0.16), transparent 28%),
-    var(--paper);
+    radial-gradient(circle at 92% 48%, rgba(55, 230, 203, 0.16), transparent 28%),
+    linear-gradient(180deg, transparent 0%, transparent 160px, var(--paper) 160px, var(--paper) 100%);
 }
 
 .review-heading {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: clamp(24px, 5vw, 56px);
-  align-items: end;
-  margin-bottom: 30px;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  max-width: 920px;
+  margin: 0 auto clamp(26px, 4vw, 40px);
+  text-align: center;
+}
+
+.review-heading h2 {
+  color: var(--paper);
+  font-size: clamp(2.1rem, 4vw, 3.5rem);
 }
 
 .review-heading p:not(.eyebrow) {
-  max-width: 68ch;
+  max-width: 62ch;
   margin: 18px 0 0;
-  color: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 1.05rem;
 }
 
 .review-score {
   display: grid;
-  min-width: 220px;
+  min-width: 0;
   gap: 4px;
-  justify-items: start;
-  padding: 22px;
+  justify-items: center;
+  margin-top: 18px;
+  padding: 14px 22px;
   border: 1px solid rgba(15, 141, 130, 0.22);
   border-radius: var(--radius);
   background: linear-gradient(135deg, #f1fffb 0%, #ffffff 78%);
@@ -802,7 +814,7 @@ h3 {
 
 .review-score strong {
   color: var(--teal-deep);
-  font-size: clamp(2.8rem, 5vw, 4.4rem);
+  font-size: clamp(2rem, 3vw, 2.7rem);
   font-weight: 950;
   line-height: 1;
 }
@@ -823,15 +835,17 @@ h3 {
 }
 
 .review-carousel {
-  position: relative;
-  min-height: 338px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.2vw, 28px);
+  min-height: 0;
 }
 
 .testimonial-card {
   display: grid;
-  min-height: 338px;
-  align-content: center;
-  padding: clamp(28px, 5vw, 50px);
+  min-height: 330px;
+  align-content: space-between;
+  padding: clamp(24px, 3vw, 36px);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
@@ -839,10 +853,14 @@ h3 {
     var(--paper);
   box-shadow: var(--shadow);
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(10px);
   transition:
     opacity 220ms ease,
     transform 220ms ease;
+}
+
+.testimonial-card[hidden] {
+  display: none;
 }
 
 .testimonial-card.active {
@@ -851,12 +869,11 @@ h3 {
 }
 
 .testimonial-card blockquote {
-  max-width: 980px;
   margin: 18px 0 24px;
   color: var(--ink);
-  font-size: clamp(1.55rem, 3.7vw, 3.25rem);
+  font-size: clamp(1.22rem, 1.55vw, 1.75rem);
   font-weight: 950;
-  line-height: 1.08;
+  line-height: 1.14;
 }
 
 .review-stars {
@@ -2516,6 +2533,7 @@ summary:focus-visible {
   }
 
   .promise-grid,
+  .review-carousel,
   .service-grid,
   .why-grid,
   .how-layout,
@@ -2531,6 +2549,10 @@ summary:focus-visible {
   }
 
   .route-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .review-carousel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -2658,6 +2680,26 @@ summary:focus-visible {
   .hero {
     min-height: 84vh;
     padding: 104px 20px 42px;
+  }
+
+  .review-section {
+    margin-top: 0;
+    padding-top: clamp(64px, 12vw, 84px);
+    background:
+      radial-gradient(circle at 92% 12%, rgba(55, 230, 203, 0.16), transparent 30%),
+      var(--paper);
+  }
+
+  .review-heading h2 {
+    color: var(--ink);
+  }
+
+  .review-heading p:not(.eyebrow) {
+    color: var(--ink-soft);
+  }
+
+  .review-carousel {
+    grid-template-columns: 1fr;
   }
 
   .page-main {

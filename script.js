@@ -194,17 +194,29 @@ if (reviewCarousel) {
   const previousButton = reviewCarousel.querySelector("[data-review-prev]");
   const nextButton = reviewCarousel.querySelector("[data-review-next]");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mediumReviewLayout = window.matchMedia("(max-width: 980px)");
+  const smallReviewLayout = window.matchMedia("(max-width: 760px)");
   let activeIndex = 0;
   let reviewTimer;
+
+  function getVisibleReviewCount() {
+    if (smallReviewLayout.matches) return 1;
+    if (mediumReviewLayout.matches) return Math.min(2, slides.length);
+    return Math.min(3, slides.length);
+  }
 
   function showReview(nextIndex) {
     if (!slides.length) return;
     activeIndex = (nextIndex + slides.length) % slides.length;
+    const visibleCount = getVisibleReviewCount();
 
     slides.forEach((slide, index) => {
-      const isActive = index === activeIndex;
+      const offset = (index - activeIndex + slides.length) % slides.length;
+      const isActive = offset < visibleCount;
       slide.hidden = !isActive;
       slide.classList.toggle("active", isActive);
+      slide.setAttribute("aria-hidden", String(!isActive));
+      slide.style.order = isActive ? String(offset) : "";
     });
 
     dots.forEach((dot, index) => {
@@ -245,6 +257,8 @@ if (reviewCarousel) {
   reviewCarousel.addEventListener("mouseleave", startReviewTimer);
   reviewCarousel.addEventListener("focusin", stopReviewTimer);
   reviewCarousel.addEventListener("focusout", startReviewTimer);
+  mediumReviewLayout.addEventListener("change", () => showReview(activeIndex));
+  smallReviewLayout.addEventListener("change", () => showReview(activeIndex));
 
   showReview(0);
   startReviewTimer();
