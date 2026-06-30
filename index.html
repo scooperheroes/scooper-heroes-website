@@ -59,7 +59,7 @@
       ]
     }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260630promise" />
+    <link rel="stylesheet" href="styles.css?v=20260630zipcheck" />
   </head>
   <body data-page="home">
     <header class="site-header" data-header>
@@ -123,6 +123,34 @@
             <a class="button button-secondary" href="#how-it-works">Watch How It Works</a>
           </div>
         </div>
+
+        <form class="hero-zip-card" data-hero-zip-form aria-label="Check service area ZIP code">
+          <p class="eyebrow">Start here</p>
+          <h2>Are you in our service area?</h2>
+          <p>
+            Enter your ZIP code first. If you are in our routes, we will send you
+            straight to the free yard inspection form.
+          </p>
+          <label for="hero-service-zip">Service Area ZIP Code</label>
+          <div class="hero-zip-row">
+            <input
+              id="hero-service-zip"
+              name="serviceZip"
+              type="text"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              maxlength="5"
+              pattern="[0-9]{5}"
+              placeholder="46322"
+              required
+            />
+            <button class="button button-primary" type="submit">Check ZIP</button>
+          </div>
+          <p class="hero-zip-message" data-hero-zip-message role="status" aria-live="polite"></p>
+          <a class="button button-primary hero-quote-link" data-hero-quote-link href="https://form.jotform.com/261075534581054" hidden>
+            Get Free Quote
+          </a>
+        </form>
       </section>
 
       <section class="section promise-section" aria-labelledby="promise-title">
