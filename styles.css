@@ -1609,7 +1609,7 @@ details p {
 .jotform-embed-card iframe {
   display: block;
   width: 100%;
-  min-height: 1420px;
+  min-height: 0;
   border: 0;
   background: var(--paper);
 }
