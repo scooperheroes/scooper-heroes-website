@@ -12,7 +12,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png" />
     <link rel="apple-touch-icon" href="/assets/favicon-192x192.png" />
-    <link rel="stylesheet" href="styles.css?v=20260627d" />
+    <link rel="stylesheet" href="styles.css?v=20260630a" />
   </head>
   <body data-page="quote">
     <header class="site-header compact-header" data-header>
@@ -40,13 +40,13 @@
           </div>
         </div>
         <a class="login-link" href="https://client.sweepandgo.com/login">Client Login</a>
-        <a class="nav-cta" href="https://form.jotform.com/261075534581054" aria-current="page">Free Quote</a>
+        <a class="nav-cta" href="quote.html" aria-current="page">Free Quote</a>
       </nav>
     </header>
 
-    <main class="quote-page-main" data-quote-form>
-      <section class="quote-shell" aria-label="Free yard inspection form">
-        <div class="quote-intro">
+    <main class="quote-page-main quote-embed-main">
+      <section class="quote-shell quote-embed-shell" aria-label="Free yard inspection form">
+        <div class="quote-intro quote-embed-intro">
           <img src="assets/logo-scooper-heroes.png" alt="Scooper Heroes logo" />
           <p class="eyebrow">Free yard inspection</p>
           <p>
@@ -60,238 +60,27 @@
           </div>
         </div>
 
-        <section class="quote-card" aria-label="Free yard inspection form">
-          <div class="quote-progress" aria-label="Form progress">
-            <div>
-              <span data-step-count>Step 1 of 5</span>
-              <strong data-step-title>Service area</strong>
-            </div>
-            <div class="quote-progress-track" aria-hidden="true">
-              <span data-progress-bar></span>
-            </div>
-          </div>
-
-          <form class="quote-form" novalidate>
-            <label class="form-honeypot" aria-hidden="true">
-              Company Website
-              <input name="companyWebsite" type="text" autocomplete="off" tabindex="-1" />
-            </label>
-            <input name="formStartedAt" type="hidden" data-form-started-at />
-            <input name="formNonce" type="hidden" data-form-nonce />
-            <div class="quote-alert" data-form-message role="status" aria-live="polite" hidden></div>
-
-            <section class="quote-step active" data-step-panel="0" aria-labelledby="step-service-area">
-              <p class="eyebrow">Start here</p>
-              <h2 id="step-service-area">Are you in our service area?</h2>
-              <p class="step-copy">
-                Enter your ZIP code first. If you are outside our current routes, the
-                form will stop before asking for appointment details.
-              </p>
-
-              <div class="field-grid two">
-                <label>
-                  ZIP Code
-                  <input name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="46322" required />
-                </label>
-                <label>
-                  Number of Dogs
-                  <select name="dogCount" required>
-                    <option value="">Choose one</option>
-                    <option value="1">1 dog</option>
-                    <option value="2">2 dogs</option>
-                    <option value="3">3 dogs</option>
-                    <option value="4">4 dogs</option>
-                    <option value="5">5 dogs</option>
-                    <option value="6+">6 or more dogs</option>
-                  </select>
-                </label>
-              </div>
-
-              <fieldset class="choice-field">
-                <legend>What do you need?</legend>
-                <label>
-                  <input type="radio" name="serviceType" value="Recurring service" required />
-                  <span>
-                    <strong>Recurring service</strong>
-                    Weekly, biweekly, or monthly cleanup.
-                  </span>
-                </label>
-                <label>
-                  <input type="radio" name="serviceType" value="One-time cleanup" required />
-                  <span>
-                    <strong>One-time cleanup</strong>
-                    A reset for an overgrown or messy yard.
-                  </span>
-                </label>
-              </fieldset>
-
-              <div class="zip-result good" data-zip-good hidden>
-                Great news. This ZIP is inside our current route area.
-              </div>
-              <div class="zip-result bad" data-zip-bad hidden>
-                We are not servicing this ZIP yet. You can still call or text us if you
-                are close to our route edge.
-              </div>
-            </section>
-
-            <section class="quote-step" data-step-panel="1" aria-labelledby="step-contact">
-              <p class="eyebrow">Meet your hero</p>
-              <h2 id="step-contact">Who do we have the pleasure of serving?</h2>
-              <p class="step-copy">
-                Share the best contact details for your free yard inspection so our
-                team can confirm the visit and keep everything easy from here.
-              </p>
-
-              <div class="field-grid two">
-                <label>
-                  First Name
-                  <input name="firstName" type="text" autocomplete="given-name" required />
-                </label>
-                <label>
-                  Last Name
-                  <input name="lastName" type="text" autocomplete="family-name" required />
-                </label>
-              </div>
-              <div class="field-grid two">
-                <label>
-                  Phone Number
-                  <input name="phone" type="tel" autocomplete="tel" placeholder="708-739-4317" required />
-                </label>
-                <label>
-                  Email
-                  <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
-                </label>
-              </div>
-            </section>
-
-            <section class="quote-step" data-step-panel="2" aria-labelledby="step-yard">
-              <p class="eyebrow">Yard details</p>
-              <h2 id="step-yard">Tell us what we are walking into.</h2>
-              <p class="step-copy">
-                The better the details, the smoother the inspection and quote.
-              </p>
-
-              <label>
-                Street Address
-                <input name="street" type="text" autocomplete="address-line1" placeholder="123 Main St" required />
-              </label>
-              <div class="field-grid three">
-                <label>
-                  City
-                  <input name="city" type="text" autocomplete="address-level2" required />
-                </label>
-                <label>
-                  State
-                  <select name="state" autocomplete="address-level1" required>
-                    <option value="">Choose</option>
-                    <option value="IN">Indiana</option>
-                    <option value="IL">Illinois</option>
-                  </select>
-                </label>
-                <label>
-                  Last Cleaning
-                  <input name="lastCleaning" type="text" placeholder="Example: 3 months" required />
-                </label>
-              </div>
-              <div class="field-grid two">
-                <label>
-                  Gate or Access Notes
-                  <input name="accessNotes" type="text" placeholder="Gate code, side entrance, dogs out back..." />
-                </label>
-                <label>
-                  Preferred Schedule
-                  <select name="preferredSchedule" required>
-                    <option value="">Choose one</option>
-                    <option value="Weekly">Weekly</option>
-                    <option value="Biweekly">Biweekly</option>
-                    <option value="Monthly">Monthly</option>
-                    <option value="One-time only">One-time only</option>
-                  </select>
-                </label>
-              </div>
-              <label>
-                Special Instructions
-                <textarea name="specialInstructions" rows="4" placeholder="Anything we should know before we arrive?"></textarea>
-              </label>
-            </section>
-
-            <section class="quote-step" data-step-panel="3" aria-labelledby="step-appointment">
-              <p class="eyebrow">Appointment</p>
-              <h2 id="step-appointment">Choose a walkthrough window.</h2>
-              <p class="step-copy">
-                Pick the day and time that works best for your free yard inspection.
-              </p>
-
-              <input name="appointmentDate" type="hidden" required />
-              <input name="appointmentTime" type="hidden" required />
-
-              <div class="appointment-picker">
-                <div>
-                  <h3>Available days</h3>
-                  <div class="date-options" data-date-options></div>
-                </div>
-                <div>
-                  <h3>Available times</h3>
-                  <div class="time-options" data-time-options></div>
-                </div>
-              </div>
-
-              <label class="sms-consent">
-                <input name="smsOptIn" type="checkbox" value="yes" />
-                <span>
-                  Send me appointment reminders by text. Message and data rates may apply.
-                </span>
-              </label>
-              <label class="sms-consent">
-                <input name="homeForAppointment" type="checkbox" value="yes" required />
-                <span>I will be home for appointment.</span>
-              </label>
-            </section>
-
-            <section class="quote-step" data-step-panel="4" aria-labelledby="step-review">
-              <p class="eyebrow">Review</p>
-              <h2 id="step-review">Confirm your request.</h2>
-              <p class="step-copy">
-                Review your details, then send your yard inspection request.
-              </p>
-
-              <div class="review-card" data-review></div>
-
-              <label class="sms-consent">
-                <input name="consent" type="checkbox" required />
-                <span>
-                  I agree that Scooper Heroes can contact me by phone, text, or email
-                  about this quote request.
-                </span>
-              </label>
-            </section>
-
-            <section class="quote-step success-step" data-success-panel aria-labelledby="success-title" hidden>
-              <p class="eyebrow">Request ready</p>
-              <h2 id="success-title">Your yard inspection request is ready.</h2>
-              <p>
-                Thanks. Scooper Heroes will review your details and confirm the visit
-                window.
-              </p>
-              <div class="success-actions">
-                <a class="button button-primary" data-email-fallback href="mailto:scooperheroes.service@gmail.com">Email this request</a>
-                <a class="button button-secondary" href="sms:+17087394317">Text Scooper Heroes</a>
-              </div>
-            </section>
-
-            <div class="quote-controls" data-form-controls>
-              <button class="button button-secondary" type="button" data-prev hidden>Back</button>
-              <button class="button button-primary" type="button" data-next>Continue</button>
-              <button class="button button-primary" type="submit" data-submit hidden>Request Inspection</button>
-            </div>
-          </form>
+        <section class="quote-card jotform-embed-card" aria-label="Scooper Heroes free yard inspection form">
+          <iframe
+            id="JotFormIFrame-261075534581054"
+            title="Scooper Heroes Free Yard Inspection"
+            allowtransparency="true"
+            allow="geolocation; microphone; camera; fullscreen; payment"
+            src="https://form.jotform.com/261075534581054"
+            frameborder="0"
+            scrolling="no"
+          ></iframe>
+          <p class="jotform-fallback">
+            Having trouble loading the form?
+            <a href="https://form.jotform.com/261075534581054">Open the secure form directly.</a>
+          </p>
         </section>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="footer-cta-bar">
-        <a href="https://form.jotform.com/261075534581054">Free Quote</a>
+        <a href="quote.html">Free Quote</a>
         <span aria-hidden="true">-</span>
         <a href="tel:+17087394317">Call or Text (708) 739-4317</a>
       </div>
@@ -322,9 +111,12 @@
     </footer>
 
     <script src="script.js?v=20260627d"></script>
+    <script src="https://cdn.jotfor.ms/s/umd/latest/for-form-embed-handler.js"></script>
     <script>
-      window.SCOOPER_HEROES_FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbwXW14EcF220B3zeYDGhfI247t68LpzZiMZ0XSYRXlqS606brNHyR6ilgc_p69X0zVO/exec";
+      window.jotformEmbedHandler(
+        "iframe[id='JotFormIFrame-261075534581054']",
+        "https://form.jotform.com/"
+      );
     </script>
-    <script src="quote-form.js?v=20260627d"></script>
   </body>
 </html>

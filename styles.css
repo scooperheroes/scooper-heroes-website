@@ -1597,6 +1597,36 @@ details p {
   box-shadow: 0 34px 90px rgba(2, 7, 21, 0.38);
 }
 
+.quote-embed-shell {
+  grid-template-columns: minmax(280px, 0.58fr) minmax(560px, 1fr);
+}
+
+.jotform-embed-card {
+  padding: 0;
+  background: var(--paper);
+}
+
+.jotform-embed-card iframe {
+  display: block;
+  width: 100%;
+  min-height: 1420px;
+  border: 0;
+  background: var(--paper);
+}
+
+.jotform-fallback {
+  margin: 0;
+  padding: 18px 24px 24px;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.jotform-fallback a {
+  color: var(--red-deep);
+  font-weight: 900;
+}
+
 .quote-progress {
   display: grid;
   gap: 16px;
