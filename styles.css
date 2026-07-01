@@ -825,12 +825,12 @@ h3 {
 .review-section {
   position: relative;
   z-index: 4;
-  margin-top: clamp(-150px, -8vw, -88px);
-  padding-top: clamp(54px, 6vw, 84px);
+  margin-top: clamp(-430px, -22vw, -260px);
+  padding-top: clamp(36px, 4vw, 64px);
   padding-bottom: clamp(70px, 8vw, 108px);
   background:
     radial-gradient(circle at 92% 48%, rgba(55, 230, 203, 0.16), transparent 28%),
-    linear-gradient(180deg, transparent 0%, transparent 160px, var(--paper) 160px, var(--paper) 100%);
+    linear-gradient(180deg, transparent 0%, transparent 360px, var(--paper) 360px, var(--paper) 100%);
 }
 
 .review-heading {
