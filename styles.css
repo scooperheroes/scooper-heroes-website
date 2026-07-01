@@ -47,7 +47,7 @@ body[data-page="services"] {
 }
 
 body[data-page="service-area"] {
-  --page-hero-image: url("assets/bg-service-area-pickup.png");
+  --page-hero-image: url("assets/bg-service-area-neighborhood.png");
   --page-hero-position: center;
 }
 
