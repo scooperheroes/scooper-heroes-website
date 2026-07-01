@@ -830,12 +830,12 @@ h3 {
 .review-section {
   position: relative;
   z-index: 4;
-  margin-top: clamp(-430px, -22vw, -260px);
-  padding-top: clamp(36px, 4vw, 64px);
+  margin-top: 0;
+  padding-top: clamp(64px, 8vw, 104px);
   padding-bottom: clamp(70px, 8vw, 108px);
   background:
-    radial-gradient(circle at 92% 48%, rgba(55, 230, 203, 0.16), transparent 28%),
-    linear-gradient(180deg, transparent 0%, transparent 360px, var(--paper) 360px, var(--paper) 100%);
+    radial-gradient(circle at 92% 16%, rgba(55, 230, 203, 0.16), transparent 28%),
+    var(--paper);
 }
 
 .review-heading {
@@ -848,14 +848,14 @@ h3 {
 }
 
 .review-heading h2 {
-  color: var(--paper);
+  color: var(--ink);
   font-size: clamp(2.1rem, 4vw, 3.5rem);
 }
 
 .review-heading p:not(.eyebrow) {
   max-width: 62ch;
   margin: 18px 0 0;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--ink-soft);
   font-size: 1.05rem;
 }
 
@@ -2768,19 +2768,7 @@ summary:focus-visible {
   }
 
   .review-section {
-    margin-top: 0;
     padding-top: clamp(64px, 12vw, 84px);
-    background:
-      radial-gradient(circle at 92% 12%, rgba(55, 230, 203, 0.16), transparent 30%),
-      var(--paper);
-  }
-
-  .review-heading h2 {
-    color: var(--ink);
-  }
-
-  .review-heading p:not(.eyebrow) {
-    color: var(--ink-soft);
   }
 
   .review-carousel {
