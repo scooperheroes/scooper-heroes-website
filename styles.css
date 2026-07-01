@@ -2627,21 +2627,7 @@ summary:focus-visible {
   }
 }
 
-@media (max-width: 760px) {
-  .site-header {
-    min-height: 80px;
-    padding: 10px 18px;
-  }
-
-  .brand-line {
-    display: none;
-  }
-
-  .brand-logo {
-    width: 56px;
-    height: 56px;
-  }
-
+@media (max-width: 1080px) {
   .nav-toggle {
     position: relative;
     z-index: 30;
@@ -2663,54 +2649,14 @@ summary:focus-visible {
     background: currentColor;
   }
 
-  .hero {
-    min-height: auto;
-    padding-top: 108px;
-  }
-
-  .promise-card {
-    grid-template-columns: 1fr;
-  }
-
-  .promise-card-image {
-    height: auto;
-    min-height: 220px;
-    aspect-ratio: 16 / 10;
-  }
-
-  .promise-card-body {
-    border-top: 5px solid rgba(15, 141, 130, 0.9);
-    border-left: 0;
-  }
-
-  .promise-title-row {
-    align-items: flex-start;
-  }
-
-  .promise-icon {
-    width: 46px;
-    height: 46px;
-    flex-basis: 46px;
-  }
-
-  .hero-zip-card {
-    width: min(100% - 24px, 440px);
-  }
-
-  .hero-zip-row input,
-  .hero-zip-row .button,
-  .hero-quote-link {
-    width: 100%;
-  }
-
   .site-nav {
     position: fixed;
-    inset: 76px 12px auto;
+    inset: 84px 18px auto;
     display: none;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    max-height: calc(100vh - 90px);
+    max-height: calc(100vh - 104px);
     overflow: auto;
     padding: 12px;
     border: 1px solid var(--line);
@@ -2765,6 +2711,67 @@ summary:focus-visible {
   .nav-cta {
     margin-top: 8px;
     text-align: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    min-height: 80px;
+    padding: 10px 18px;
+  }
+
+  .brand-line {
+    display: none;
+  }
+
+  .brand-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 108px;
+  }
+
+  .promise-card {
+    grid-template-columns: 1fr;
+  }
+
+  .promise-card-image {
+    height: auto;
+    min-height: 220px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .promise-card-body {
+    border-top: 5px solid rgba(15, 141, 130, 0.9);
+    border-left: 0;
+  }
+
+  .promise-title-row {
+    align-items: flex-start;
+  }
+
+  .promise-icon {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .hero-zip-card {
+    width: min(100% - 24px, 440px);
+  }
+
+  .hero-zip-row input,
+  .hero-zip-row .button,
+  .hero-quote-link {
+    width: 100%;
+  }
+
+  .site-nav {
+    inset: 76px 12px auto;
+    max-height: calc(100vh - 90px);
   }
 
   .hero {
