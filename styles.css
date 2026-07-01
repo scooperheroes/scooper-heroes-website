@@ -838,6 +838,11 @@ h3 {
     var(--paper);
 }
 
+.hero + .review-section {
+  margin-top: 0 !important;
+  background: var(--paper);
+}
+
 .review-heading {
   display: grid;
   grid-template-columns: 1fr;
