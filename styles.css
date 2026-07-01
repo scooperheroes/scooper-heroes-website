@@ -173,6 +173,7 @@ button {
 
 .site-nav a {
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-dropdown {
@@ -2627,7 +2628,7 @@ summary:focus-visible {
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1360px) {
   .nav-toggle {
     position: relative;
     z-index: 30;
